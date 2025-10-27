@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -30,4 +29,13 @@ export interface SimulationState {
   simulationSpeed: number;
   catastrophicFailure: string | null;
   isAnalyzing: boolean;
+  temperature: number;
+  weather: 'Sunny' | 'Rainy';
+  footTraffic: 'Low' | 'Medium' | 'High';
+}
+
+export interface Environment {
+    temperature: number;
+    weather: 'Sunny' | 'Rainy';
+    footTraffic: 'Low' | 'Medium' | 'High';
 }

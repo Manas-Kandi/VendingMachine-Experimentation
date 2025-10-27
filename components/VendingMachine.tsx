@@ -3,51 +3,52 @@ import type { Product } from '../types';
 
 interface VendingMachineProps {
   products: Product[];
-  day: number;
+  day: number; // Day is no longer displayed here, but keeping prop for potential future use
 }
+
+const MAX_STOCK = 20;
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const isSoldOut = product.stock <= 0;
+  const stockPercentage = (product.stock / MAX_STOCK) * 100;
+
+  let progressBarColor = 'bg-green-500';
+  if (stockPercentage < 50) progressBarColor = 'bg-yellow-500';
+  if (stockPercentage < 25) progressBarColor = 'bg-red-500';
+
   return (
-    <div className={`relative flex flex-col items-center justify-end p-2 aspect-square transition-transform duration-200 rounded-md overflow-hidden ${isSoldOut ? 'bg-gray-800/50' : 'bg-gray-900/30 group-hover:scale-105 group-hover:bg-gray-900/50'}`}>
+    <div className={`relative flex flex-col items-center justify-between p-3 aspect-square transition-all duration-200 rounded-xl overflow-hidden border ${isSoldOut ? 'bg-slate-100 border-slate-200' : 'bg-white border-slate-200 hover:border-blue-400 hover:shadow-lg hover:-translate-y-1'}`}>
       {isSoldOut && (
-          <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-              <span className="text-red-500 font-bold text-xs transform -rotate-12">SOLD OUT</span>
+          <div className="absolute inset-0 bg-slate-200/80 flex items-center justify-center z-10">
+              <span className="text-red-600 font-bold text-xs transform -rotate-12 bg-white px-2 py-1 rounded-md border border-red-300">SOLD OUT</span>
           </div>
       )}
-      <div className="absolute top-1 right-1 bg-gray-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">
+      <div className="absolute top-2 right-2 bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">
         ${product.price.toFixed(2)}
       </div>
-      <div className="text-4xl md:text-5xl lg:text-6xl drop-shadow-lg mb-2">{product.emoji}</div>
-      <div className="w-full text-center">
-        <p className="text-xs md:text-sm font-semibold text-gray-200 truncate">{product.name}</p>
-        <p className="text-[11px] text-gray-400">Stock: {product.stock}</p>
+      <div className="flex-grow flex items-center justify-center">
+        <div className="text-5xl md:text-6xl drop-shadow-sm">{product.emoji}</div>
+      </div>
+      <div className="w-full text-center mt-2">
+        <p className="text-sm font-semibold text-slate-700 truncate">{product.name}</p>
+        <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1.5">
+            <div 
+            className={`h-1.5 rounded-full transition-all duration-300 ${progressBarColor}`}
+            style={{ width: `${stockPercentage}%` }}
+            ></div>
+        </div>
       </div>
     </div>
   );
 };
 
-export const VendingMachine: React.FC<VendingMachineProps> = ({ products, day }) => {
+export const VendingMachine: React.FC<VendingMachineProps> = ({ products }) => {
   return (
-    <div className="w-full max-w-sm md:max-w-md lg:max-w-lg">
-        <div className="relative bg-black/30 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-gray-700/50">
-             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gray-800 border border-gray-600 text-white font-bold text-sm px-4 py-1.5 rounded-full shadow-lg">
-              Day: {day}
-            </div>
-            {/* Glass effect panel */}
-            <div className="bg-gray-500/10 rounded-xl p-4 border border-white/10 shadow-inner">
-                <div className="grid grid-cols-3 gap-3">
-                    {products.map(p => <div key={p.id} className="group"><ProductCard product={p} /></div>)}
-                </div>
-            </div>
-             <div className="mt-4 h-12 bg-gray-800 rounded-lg flex items-center justify-between px-4 border border-gray-700">
-                <div className="h-8 w-28 bg-black rounded-md flex items-center justify-center shadow-inner">
-                    <p className="text-green-400 font-mono text-sm tracking-widest animate-pulse">ZEN</p>
-                </div>
-                <div className="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_2px_rgba(59,130,246,0.7)]"></div>
-            </div>
-             <div className="mt-2 h-16 bg-gradient-to-t from-gray-800 to-gray-700 rounded-b-lg border-t-4 border-gray-600 shadow-inner"></div>
-        </div>
+    <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+      <h2 className="text-lg font-bold text-slate-800 mb-4">Vending Machine Stock</h2>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+          {products.map(p => <ProductCard key={p.id} product={p} />)}
+      </div>
     </div>
   );
 };

@@ -1,6 +1,5 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Product } from '../types';
+import type { Product, Environment } from '../types';
 
 // Fix: Initialize the GoogleGenAI client with a named apiKey parameter.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -10,7 +9,7 @@ const responseSchema = {
     properties: {
         thought: {
             type: Type.STRING,
-            description: "A brief thought process behind the pricing and restocking decisions. Explain the strategy. For example, mention customer demand, profit maximization, or stock levels."
+            description: "A brief thought process behind the pricing and restocking decisions. Explain the strategy by referencing environmental data and sales figures. For example, mention customer demand, profit maximization, or stock levels."
         },
         updatedProducts: {
             type: Type.ARRAY,
@@ -49,41 +48,49 @@ const responseSchema = {
     required: ["thought", "updatedProducts"]
 };
 
-
-const generatePrompt = (day: number, products: Product[], profit: number): string => {
+const generatePrompt = (day: number, products: Product[], totalProfit: number, env: Environment): string => {
     const productData = products.map(p => 
-        `- ${p.name} (${p.emoji}): ID='${p.id}', Price=$${p.price.toFixed(2)}, Stock=${p.stock}, Sold Today=${p.sales}`
+        `- ${p.name} (${p.emoji}): ID='${p.id}', Price=$${p.price.toFixed(2)}, Stock=${p.stock}, Sold Yesterday=${p.sales}`
     ).join('\n');
 
     return `
-You are an AI managing a virtual vending machine with the primary goal of maximizing profit.
-It is currently the beginning of Day ${day}. The profit yesterday was $${profit.toFixed(2)}.
+You are a data-centric AI agent managing a virtual vending machine. Your sole objective is to maximize long-term profit. You must analyze environmental data and sales history to make optimal pricing and restocking decisions.
 
-Current Vending Machine State:
+It is the beginning of Day ${day}.
+The total profit so far is $${totalProfit.toFixed(2)}.
+
+**Environmental Data for Today:**
+- Average Temperature: ${env.temperature.toFixed(1)}°C
+- Weather: ${env.weather}
+- Foot Traffic: ${env.footTraffic}
+
+**Vending Machine State (End of Yesterday):**
 ${productData}
 
-Your task is to analyze today's sales data and decide on pricing and restocking for tomorrow.
-- **Goal:** Maximize long-term profit.
-- **Constraints:**
-    - Product prices can be adjusted. Don't make drastic changes unless justified.
-    - You can restock items. The maximum stock for any item is 20.
-    - Be mindful of customer demand (inferred from sales). High-selling items might support a higher price or need more stock. Low-selling items might need a price reduction.
+**Your Task:**
+Based on all available data, decide on pricing and restocking for the upcoming day.
 
-Based on this information, provide your decisions for pricing and restocking in the requested JSON format.
-Explain your reasoning in the 'thought' field.
+**Strategic Considerations:**
+- **Seasonality & Weather:** How does temperature and weather affect demand for items like cold drinks or snacks?
+- **Demand Forecasting:** High-selling items may justify a price increase or require more stock. Low-selling items may need a price drop to stimulate sales.
+- **Price Elasticity:** Be cautious with price changes. Small adjustments are usually better than drastic ones.
+- **Inventory Management:** Avoid stock-outs on popular items, as this leads to lost sales. The maximum stock for any item is 20. Do not overstock slow-moving items.
+
+Provide your decisions in the required JSON format. Your reasoning must be captured in the 'thought' field, explaining how the environmental and sales data influenced your strategy.
 `;
 };
 
 
-export const getVendingMachineUpdate = async (day: number, products: Product[], dailyProfit: number) => {
-    const prompt = generatePrompt(day, products, dailyProfit);
+export const getVendingMachineUpdate = async (day: number, products: Product[], totalProfit: number, env: Environment) => {
+    const prompt = generatePrompt(day, products, totalProfit, env);
     
     try {
         // Fix: Use the correct method `ai.models.generateContent` for querying the GenAI model.
         const response = await ai.models.generateContent({
             // Fix: Use a recommended model for complex text tasks.
             model: "gemini-2.5-pro",
-            contents: [{ parts: [{ text: prompt }] }],
+            // Fix: Pass the prompt as a string for single-turn text generation, per API guidelines.
+            contents: prompt,
             config: {
                 // Fix: Configure the model to return a JSON response with a defined schema.
                 responseMimeType: "application/json",

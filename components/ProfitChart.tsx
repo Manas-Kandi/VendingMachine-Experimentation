@@ -11,44 +11,45 @@ export const ProfitChart: React.FC<ProfitChartProps> = ({ data }) => {
       <AreaChart
         data={data}
         margin={{
-          top: 10,
+          top: 5,
           right: 20,
-          left: 0,
+          left: -10,
           bottom: 0,
         }}
       >
         <defs>
             <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.6}/>
-                <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
             </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis 
             dataKey="day" 
-            tick={{ fill: '#9ca3af', fontSize: 12 }} 
-            axisLine={{ stroke: '#4b5563' }}
-            tickLine={{ stroke: '#4b5563' }}
+            tick={{ fill: '#64748b', fontSize: 12 }} 
+            axisLine={{ stroke: '#cbd5e1' }}
+            tickLine={{ stroke: '#cbd5e1' }}
             />
         <YAxis 
-            tick={{ fill: '#9ca3af', fontSize: 12 }} 
-            axisLine={{ stroke: '#4b5563' }}
-            tickLine={{ stroke: '#4b5563' }}
+            tick={{ fill: '#64748b', fontSize: 12 }} 
+            axisLine={{ stroke: '#cbd5e1' }}
+            tickLine={{ stroke: '#cbd5e1' }}
             tickFormatter={(value) => `$${value}`}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: 'rgba(17, 24, 39, 0.8)', // bg-gray-900 with opacity
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             backdropFilter: 'blur(4px)',
-            border: '1px solid #374151',
+            border: '1px solid #e2e8f0',
             borderRadius: '0.75rem',
+            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
           }}
-          labelStyle={{ color: '#f3f4f6', fontWeight: 'bold' }}
-          itemStyle={{ color: '#d1d5db' }}
+          labelStyle={{ color: '#1e293b', fontWeight: 'bold' }}
+          itemStyle={{ color: '#334155' }}
           formatter={(value: number, name: string) => [`$${value.toFixed(2)}`, 'Profit']}
           labelFormatter={(label) => `Day ${label}`}
         />
-        <Area type="monotone" dataKey="profit" stroke="#22c55e" fillOpacity={1} fill="url(#colorProfit)" />
+        <Area type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" />
       </AreaChart>
     </ResponsiveContainer>
   );
