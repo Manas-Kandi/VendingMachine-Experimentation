@@ -1,0 +1,5 @@
+{
+  "name": "Zen Machine",
+  "description": "An autonomous AI-powered vending machine simulator with a meditative, minimalist user interface. Watch the AI learn and adapt its economic strategy in real-time.",
+  "requestFramePermissions": []
+}
